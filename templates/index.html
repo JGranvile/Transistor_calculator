@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculadora de Transistor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        $(document).ready(function() {
+            $('form#calcularForm').submit(function(event) {
+                event.preventDefault();
+                var formData = {
+                    'vcc': $('input[name=vcc]').val(),
+                    'rc': $('input[name=rc]').val(),
+                    'rb': $('input[name=rb]').val(),
+                    'beta': $('input[name=beta]').val()
+                };
+                socket.emit('calcular_transistor', formData);
+                return false;
+            });
+        });
+
+        socket.on('resultado_transistor', function(data) {
+            $('#resultado').html(
+                '<p>Corrente da Base (IB): ' + data.ib + '</p>' +
+                '<p>Corrente do Coletor (IC): ' + data.ic + '</p>' +
+                '<p>Tensão do Coletor (VC): ' + data.vc + '</p>' +
+                '<p>Tensão do Emissor (VE): ' + data.ve + '</p>' +
+                '<p>Tensão da Base (VB): ' + data.vb + '</p>'
+            );
+        });
+    </script>
+</head>
+<body>
+    <h1>Calculadora de Transistor</h1>
+    <form id="calcularForm">
+        Tensão de Alimentação (VCC): <input type="number" name="vcc" step="0.01" required><br>
+        Resistor do Coletor (RC): <input type="number" name="rc" step="0.01" required><br>
+        Resistor da Base (RB): <input type="number" name="rb" step="0.01" required><br>
+        Beta do Transistor: <input type="number" name="beta" step="0.01" required><br>
+        <input type="submit" value="Calcular">
+    </form>
+    <div id="resultado"></div>
+</body>
+</html>
